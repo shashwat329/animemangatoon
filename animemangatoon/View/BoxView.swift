@@ -10,28 +10,30 @@ struct Card: Identifiable {
     let id = UUID()
     let imageUrl: String
     let title: String
+    var rating: Int
 }
 
 struct BoxView: View {
     @State private var selectedCard: Card? = nil
     @State private var showFullScreen = false
-    let cards: [Card] = [
-        Card(imageUrl: "https://cdn.pixabay.com/photo/2022/03/10/11/10/venom-7059662_1280.png", title: "Venom : a true symbiote "),
-        Card(imageUrl: "https://m.media-amazon.com/images/S/pv-target-images/81ef275effa427553a847bc220bebe1dc314b2e79d00333f94a6bcadd7cce851._SX1080_FMjpg_.jpg", title: "Card 2"),
-        Card(imageUrl: "https://cdn.marvel.com/content/1x/005smp_ons_cut_dsk_01_5.jpg", title: "Card 3"),
-        Card(imageUrl: "https://static.dc.com/2023-03/dc_superman_hub_4up_Community_1x1.jpg?w=900", title: "Card 4"),
-        Card(imageUrl: "https://cdn.pixabay.com/photo/2022/03/10/11/10/venom-7059662_1280.png", title: "Card 5")
+    //    @State private var showRating =
+    @State private var cards: [Card] = [
+        Card(imageUrl: "https://cdn.pixabay.com/photo/2022/03/10/11/10/venom-7059662_1280.png", title: "Venom : a true symbiote ",rating: 0),
+        Card(imageUrl: "https://m.media-amazon.com/images/S/pv-target-images/81ef275effa427553a847bc220bebe1dc314b2e79d00333f94a6bcadd7cce851._SX1080_FMjpg_.jpg", title: "Card 2",rating: 0),
+        Card(imageUrl: "https://cdn.marvel.com/content/1x/005smp_ons_cut_dsk_01_5.jpg", title: "Card 3",rating: 0),
+        Card(imageUrl: "https://static.dc.com/2023-03/dc_superman_hub_4up_Community_1x1.jpg?w=900", title: "Card 4",rating: 0),
+        Card(imageUrl: "https://cdn.pixabay.com/photo/2022/03/10/11/10/venom-7059662_1280.png", title: "Card 5",rating: 0)
     ]
     
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVStack {
-                    ForEach(cards) { card in
+                    ForEach(cards.indices,id:\.self) { index in
                         // Each card view
-                        CardView(card: card)
+                        CardView(card: cards[index], rating: $cards[index].rating)
                             .onTapGesture {
-                                selectedCard = card
+                                selectedCard = cards[index]
                                 showFullScreen.toggle() // Open full-screen on tap
                             }
                             .padding()
@@ -39,15 +41,14 @@ struct BoxView: View {
                 }
             }
             .fullScreenCover(item: $selectedCard) { card in
-                FullScreenCardView(card: card)
+                FullScreenCardView(card: card, rating: $cards[cards.firstIndex(where: { $0.id == card.id })!].rating )
             }
         }
     }
 }
-
 struct CardView: View {
     var card: Card
-    
+    @Binding var rating: Int
     var body: some View {
         ZStack (alignment: .bottom){
             // AsyncImage for loading image from a URL
@@ -74,7 +75,7 @@ struct CardView: View {
                     Text(card.title)
                         .font(.headline)
                         .frame(maxWidth: .infinity,alignment: .leading)
-                    Text("Rating: 4")
+                    Text("Rating: \(rating)/5")
                 }
                 .padding()
                 
@@ -84,12 +85,15 @@ struct CardView: View {
             
         }
         .shadow(radius: 5)
+        
     }
 }
 
 struct FullScreenCardView: View {
     var card: Card
+    @Binding var rating: Int
     @Environment(\.presentationMode) var presentationMode
+    
     
     var body: some View {
         VStack(){
@@ -121,8 +125,7 @@ struct FullScreenCardView: View {
             ScrollView{
                 Text("chjsdkjfsf casdkhf kashdkf haskdhfk asdhfka hdskffk sdhkfsadfasd  kfhkahsdf   sfhiasdhfjah  sdjfha  sdjfa sdj asdfi ha sdfjha  sdhdfkasdh ahsfihasd jkaskd hfkasdh kahsdf  ihasdk fhaiksd aisdhfia sdhf ksdhfias hsdfih asdjkf hasdi fhasdih hsdifhsa dihfajsd hias sdhfias hdfsdkjf hskdfh jkadshf sahjs dkhfasdj fsdhasdf iahsdfju asd hsdfhjik sdfhjksd dhcia sdjhkjsah sfkuasdfd hasdfadskh  faisuhd asdi hfiashdfads ahsdifhasdi fhisduyfas shfia sdyfias chjsdkjfsf casdkhf kashdkf haskdhfk asdhfka hdskffk sdhkfs adfasd  kfhkahsdf   sfhiasdhfjah  sdjfha  sdjfa sdj asdfi ha sdfjha  sdhdfkasdh ahsfihasd jkaskd hfkasdh kahsdf  ihasdk fhaiksd aisdhfia sdhf ksdhfias hsdfih asdjkf hasdi fhasdih hsdifhsa dihfajsd hias sdhfias hdfsdkjf hskdfh jkadshf sahjs dkhfasdj fsdhasdf iahsdfju asd hsdfhjik sdfhjksd dhcia sdjh  kjsah sfku asdfd has dfadskh  faisuhd asdi hfiashdfads ahsdifhasdi fhisduyfas shfia sdyfias chjsdkjfsf casdkhf kashdkf haskdhfk asdhfka hdskffk sdhkfsadfasd  kfhkahsdf   sfhiasdhfjah  sdjfha  sdjfa sdj asdfi ha sdfjha  sdhdfkasdh ahsfihasd jkaskd hfkasdh kahsdf  ihasdk fhaiksd aisdhfia sdhf ksdhfias hsdfih asdjkf hasdi fhasdih hsdifhsa dihfajsd hias sdhfias hdfsdkjf hskdfh jkadshf sahjs dkhfasdj fsdhasdf iahsdfju asd hsdfhjik sdfhjksd dhcia sdjhkjsah sfkuasdfd hasdfadskh  faisuhd asdi hfiashdfads ahsdifhasdi fhisduyfas shfia sdyfias")
                     .padding(.horizontal)
-                
-                
+                StarRatingView(rating: $rating)
             }
                 
         }
